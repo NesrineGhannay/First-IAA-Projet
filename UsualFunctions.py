@@ -1,0 +1,454 @@
+# -*- coding: utf-8 -*-
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+import os
+import json
+import pickle
+from sklearn.model_selection import cross_val_score
+from sklearn.naive_bayes import GaussianNB
+from skimage.transform import rescale, resize, downscale_local_mean
+from sklearn.linear_model import LogisticRegression
+from LogisticRegression import *
+from SVM import *
+from KNN import *
+import joblib
+
+"""Récupération des donnee images où on a extrait la caractéristique suivante : on prend le bas de l'image
+puisqu'en général il est plus problable que la mer s'y trouve"""
+def moitie_basse(image):
+    width, height = image.size
+    half_height = height // 2
+    bbox = (0, half_height, width, height)
+    img_moitie_basse = image.crop(bbox)
+    # img_moitie_basse.show()
+    return img_moitie_basse
+
+def motie_haute(image):
+    width, height = image.size
+    half_height = height // 2
+    bbox = (0, half_height, width, height)
+    img_moitie_basse = image.crop(bbox)
+    # img_moitie_basse.show()
+    return img_moitie_basse
+
+
+"""
+Computes a representation of an image from the (gif, png, jpg...) file 
+representation can be (to extend) 
+'HC': color histogram
+'PX': tensor of pixels
+'GC': matrix of gray pixels 
+other to be defined
+input = an image (jpg, png, gif)
+output = a new representation of the image
+"""
+def raw_croped_image_to_representation(image, representation):
+    # Vérification que le fichier est une image (en utilisant une extension d'image telle que .jpg ou .png)
+    if not image.endswith((".jpg", ".png", ".jpeg", ".jfif", ".JPG")):
+        return "Le fichier n'est pas une image valide"
+
+    img = Image.open(image)
+
+    # on prend la partie basse de l'image
+    croped_image = moitie_basse(img)
+
+    # On redimensionne l'image
+    width = 200
+    height = 200
+    image_redim = croped_image.resize((width, height))
+
+    if representation == 'HC':
+        return histo_image(image_redim)
+
+    if representation == 'PX':
+        return tensor_image(image_redim)
+
+    if representation == 'GC':
+        return graymatrix_image(image_redim)
+
+    return "il y a un problème"  # voir ce qu'on retourne lorsque l'image a un pb
+
+
+
+def raw_image_to_representation(image, representation):
+    if not image.endswith((".jpg", ".png", ".jpeg", ".jfif", ".JPG")):
+        return "Le fichier n'est pas une image valide"
+
+    img = Image.open(image)
+    width = 200
+    height = 200
+    image_redim = img.resize((width, height))
+
+    if representation == 'HC':
+        return histo_image(image_redim)
+
+    return "Représentation non disponible"
+
+def histo_image(image):
+    # img = Image.open(image)
+    return image.histogram()
+
+
+def tensor_image(image):
+    # image = Image.open(image)
+    image_np = np.array(image)
+    tensor = image_np.astype('float32') / 255.0
+    return tensor
+
+
+def graymatrix_image(image):
+    # image = Image.open(image)
+    gray_image = np.array(image.convert('L'))
+    return gray_image
+
+
+# print(len(raw_image_to_representation("but87.jpg", 'HC')))
+# print(raw_image_to_representation("but87.jpg", 'HC'))
+
+
+def lower_crop_image(image):
+    # Size of the image in pixels (size of original image)
+    width, height = image.size
+
+    # Setting the points for cropped image
+    left = 0
+    top = height / 2
+    right = width
+    bottom = height
+
+    # Cropped image of above dimension
+    img = image.crop((left, top, right, bottom))
+
+    # Shows the image in image viewer
+    # img.show()
+    return img
+
+
+# lower_crop_image("but87.jpg")
+
+
+"""
+Returns a data structure embedding train images described according to the 
+specified representation and associate each image to its label (image_representation tous de la forme de vecteur)
+input = imageData
+output = imageData where image_representation = a vector
+"""
+def transform_to_vecteur(imageData):
+    max_vector_size = 0
+    for image in imageData:
+        image_representation = image['representation']
+        vector = np.array(image_representation)
+        # longueur du tableau image
+        # il cherche le plus grand des vecteurs pour adapter les autres images à ce vecteur
+        if vector.shape[0] > max_vector_size:
+            max_vector_size = vector.shape[0]
+        image['representation'] = vector
+
+        # Remplissage des vecteurs plus petits avec des zéros
+    for dict in imageData:
+        vector = dict['representation']
+        if vector.shape[0] < max_vector_size:
+            padding = np.zeros(max_vector_size - vector.shape[0])
+            dict['representation'] = np.concatenate((vector, padding))
+
+    return imageData
+
+
+
+"""
+Returns a data structure embedding train images described according to the 
+specified representation and associate each image to its label.
+-> Representation can be (to extend) 
+'HC': color histogram
+'PX': tensor of pixels 
+'GC': matrix of gray pixels
+other to be defined
+input = where are the data, which represenation of the data must be produced ? 
+output = a structure (dictionnary ? Matrix ? File ?) where the images of the
+directory have been transformed and labelled according to the directory they are
+stored in.
+-- uses function raw_image_to_representation
+"""
+def load_transform_label_train_data_v2(directory, representation):
+    image_data = []
+    max_vector_size = 0
+    # sous-dossiers contenus dans "directory"
+    directories = [
+        d for d in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, d))
+    ]
+    # classifications des images en parcourant chaque sous-dossier
+    for etiquette in directories:
+        # on accède à chaque sous-dossier de directory
+        subdir = os.path.join(directory, etiquette)
+        # labelisation et le stockage des images issues du sous-répertoire "Ailleurs" par -1
+        if etiquette == "Ailleurs":
+            for image in os.listdir(subdir):
+                # on transforme l'image par sa representation (type indiqué en paramètre )
+                image_representation = raw_image_to_representation(
+                    os.path.join(subdir, image), representation)
+                image_data.append({'nom': image, 'label': -1, 'representation': image_representation})
+
+        # labelisation des images issues du sous-répertoire "Mer" par 1
+        elif etiquette == "Mer":
+            for image in os.listdir(subdir):
+                # on transforme chaque image par la representation prise en paramètre
+                image_representation = raw_image_to_representation(
+                    os.path.join(subdir, image), representation)
+
+                # On ajoute un dictionnaire contenant les informations de l'image
+                image_data.append({'nom': image, 'label': 1, 'representation': image_representation})
+
+    return image_data
+
+
+"""
+Returns a data structure embedding train images described according to the 
+specified representation and associate each image to its label.
+-> Representation can be (to extend) 
+'HC': color histogram
+'PX': tensor of pixels 
+'GC': matrix of gray pixels
+other to be defined
+input = where are the data, which represenation of the data must be produced ? 
+output = a structure (dictionnary ? Matrix ? File ?) where the images of the
+directory have been croped, transformed and labelled according to the directory they are
+stored in.
+-- uses function raw_croped_image_to_representation
+"""
+def load_transform_label_train_data_croped(directory, representation):
+    image_data = []
+    max_vector_size = 0
+    # sous-dossiers contenus dans "directory"
+    directories = [
+        d for d in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, d))
+    ]
+    # classifications des images en parcourant chaque sous-dossier
+    for etiquette in directories:
+        # on accède à chaque sous-dossier de directory
+        subdir = os.path.join(directory, etiquette)
+        # labelisation et le stockage des images issues du sous-répertoire "Ailleurs" par -1
+        if etiquette == "Ailleurs":
+            for image in os.listdir(subdir):
+                # on transforme l'image par sa representation (type indiqué en paramètre )
+                image_representation = raw_croped_image_to_representation(
+                    os.path.join(subdir, image), representation)
+                image_data.append({'nom': image, 'label': -1, 'representation': image_representation})
+        # labelisation des images issues du sous-répertoire "Mer" par 1
+        elif etiquette == "Mer":
+            for image in os.listdir(subdir):
+                # on transforme chaque image par la representation prise en paramètre
+                image_representation = raw_croped_image_to_representation(
+                    os.path.join(subdir, image), representation)
+                # On ajoute un dictionnaire contenant les informations de l'image
+                image_data.append({'nom': image, 'label': 1, 'representation': image_representation})
+
+    return image_data
+
+# print(load_transform_label_train_data("Data", "PX"))
+
+"""
+Returns a data structure embedding test images described according to the 
+specified representation.
+-> Representation can be (to extend) 
+'HC': color histogram
+'PX': tensor of pixels 
+'GC': matrix of gray pixels 
+other to be defined
+input = where are the data, which represenation of the data must be produced ? 
+output = a structure (dictionnary ? Matrix ? File ?) where the images of the directory have been transformed (but not labelled)
+-- uses function raw_image_to_representation
+"""
+# liste où l'on va stocker la représentation de chaque image située dans directory de la forme : samples_data = [dicoImage1 = {"nom": ....,"représentation": .....}; dicoImage2 = {}]
+def load_transform_test_data(directory, representation):
+    samples_data = []
+    # Récupération de la liste des fichiers dans le dossier
+    files = os.listdir(directory)
+
+    # Boucle pour parcourir toutes les images
+    for image in files:
+        # Vérification que le fichier est une image (en utilisant une extension d'image telle que .jpg ou .png)
+        if image.endswith(".jpeg") or image.endswith(".png") or image.endswith(".jfif") or image.endswith(".JPG") or image.endswith(".jpg"):
+            # recupération de la représentation de l'image qu'on ajoute par la suite à notre liste imagesDirectory
+            image_representation = raw_image_to_representation(os.path.join(directory, image), representation)
+
+            samples_data.append({'nom': image, 'representation': image_representation})
+
+    return samples_data
+
+def load_transform_test_data_croped(directory, representation):
+    samples_data = []
+    # Récupération de la liste des fichiers dans le dossier
+    files = os.listdir(directory)
+
+    # Boucle pour parcourir toutes les images
+    for image in files:
+        # Vérification que le fichier est une image (en utilisant une extension d'image telle que .jpg ou .png)
+        if image.endswith(".jpeg") or image.endswith(".png") or image.endswith(".jfif") or image.endswith(".JPG") or image.endswith(".jpg"):
+            # recupération de la représentation de l'image qu'on ajoute par la suite à notre liste imagesDirectory
+            image_representation = raw_croped_image_to_representation(os.path.join(directory, image), representation)
+
+            samples_data.append({'nom': image, 'representation': image_representation})
+
+    return samples_data
+
+
+"""
+Learn a model (function) from a representation of data, using the algorithm 
+and its hyper-parameters described in algo_dico
+Here data has been previously transformed to the representation used to learn
+the model
+input = transformed labelled data, the used learning algo and its hyper-parameters (a dico ?)
+output =  a model fit with data
+"""
+def learn_model_from_data(train_data, model):
+    X_train = []
+    Y_train = []
+
+    for image in train_data:
+        X_train.append(image['representation'])
+        Y_train.append(image['label'])
+
+    features_array = np.array([np.array(f) for f in X_train])
+    labels_array = np.array(Y_train)
+
+
+    # Création d'une instance du modèle LogisticRegression avec C:  l'inverse de la force de régularisation,
+    # liblinear l'algorithme d'optimisation utilisé pour entraîner le modèle  et max_iter: le nombre maximum
+    # d'itérations autorisées pour la convergence
+    return model.fit(features_array, labels_array)
+
+
+"""
+Given one example (representation of an image as used to compute the model),
+computes its class according to a previously learned model.
+Here data has been previously transformed to the representation used to learn
+the model
+input = representation of one data, the learned model
+output = the label of that one data (+1 or -1)
+-- uses the model learned by function learn_model_from_datas
+"""
+# si on suppose que data est de cette forme data = [dicoImage1 = {"nom": ....,"représentation": .....}; dicoImage2 = {}]
+def predict_example_label(example, model):
+    example = example.reshape(1, -1)
+    prediction = model.predict(example)
+    if prediction > 0:
+        return 1
+    else:
+        return -1
+
+
+"""
+Computes an array (or list or dico or whatever) that associates a prediction 
+to each example (image) of the data, using a previously learned model. 
+Here data has been previously transformed to the representation used to learn
+the model
+input = a structure (dico, matrix, ...) embedding all transformed data to a representation, and a model
+output =  a structure that associates a label to each data (image) of the input sample
+"""
+def predict_sample_label(data, model):
+    for image in data:
+        representation = image["representation"]
+        predicted_label = predict_example_label(representation, model)
+        image['label'] = predicted_label
+
+    return data
+
+
+
+"""
+Save the predictions on data to a text file with syntax:
+filename <space> label (either -1 or 1)  
+NO ACCENT  
+Here data has been previously transformed to the representation used to learn
+the model
+input = where to save the predictions, structure embedding the data, the model used
+for predictions
+output =  OK if the file has been saved, not OK if not
+"""
+def write_predictions(directory, dataPredicted, newNameFile):
+    # construit le chemin du fichier
+    filepath = os.path.join(directory, newNameFile)
+
+    # vérifie que dataPredicted n'est pas vide
+    if not dataPredicted:
+        return "dataPredicted est vide"
+
+    # vérifie que le répertoire existe
+    if not os.path.isdir(directory):
+        return "répertoire non trouvé"
+
+    # écrit les prédictions dans un fichier texte
+    with open(filepath, "w") as file:
+        for image in dataPredicted:
+            if "nom" in image and "label" in image and image["nom"] is not None and image["label"] is not None:
+                file.write(f"{image['nom']} {image['label']}\n")
+            else:
+                return "données manquantes"
+
+    # vérifie si le fichier a été sauvegardé avec succès
+    if os.path.exists(filepath):
+        return file
+    else:
+        return "erreur lors de l'écriture du fichier"
+
+
+
+"""
+Estimates the accuracy of a previously learned model using train data, 
+either through CV or mean hold-out, with k folds.
+Here data has been previously transformed to the representation used to learn
+the model
+input = the train labelled data as previously structured, the learned model, and
+the number of split to be used either in a hold-out or by cross-validation  
+output =  The score of success (betwwen 0 and 1, the higher the better, scores under 0.5
+are worst than random
+"""
+def estimate_model_score(model, train_data, k):
+    learnedModel = learn_model_from_data(train_data, model)
+    # récupération des données d'entraînement sous forme de liste (X_train), et des étiquettes associées à chaque données (Y_train)
+    X_train = []
+    Y_train = []
+    for image in train_data:
+        X_train.append(image["representation"])
+        Y_train.append(image["label"])
+
+    # Utilisation de la méthode cross_val_score pour estimer la performance du modèle en utilisant la validation croisée
+    scores = cross_val_score(learnedModel, X_train, Y_train, cv=k)
+
+    # Calcul de la moyenne des scores pour chaque pli
+    return scores.mean()
+
+
+
+"""
+permet de récupérer les données sous forme de vecteur 
+"""
+def getFinalData(fileData):
+    # transformation et labélisation des données
+    data = load_transform_label_train_data_croped(fileData, 'HC')
+    # normalisation des données
+    data_normalized = normalize_representation(data)
+    # Extraction de la caractéristique bleu
+    data_blue = extract_blue_channel_2(data_normalized)
+    # mise sous forme de vecteurs des données
+    vector_data = transform_to_vecteur(data_blue)
+    return vector_data
+
+
+"""
+Permet d'enregistrer un modèle appris sous format .pkl
+"""
+def saveModel(model, nom):
+    namePKL = str(nom + '.pkl')
+    joblib.dump(model, namePKL)
+
+
+"""Permet de charger un modèl enregistrer au préalable .pkl"""
+def loadLearnedModel(fileModel):
+    # Load the model from the file
+    model_from_joblib = joblib.load(fileModel)
+    return model_from_joblib
+
