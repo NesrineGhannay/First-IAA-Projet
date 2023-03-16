@@ -1,4 +1,4 @@
-
+import numpy as np
 
 """Récupération des donnee images où on a extrait la caractéristique suivante : on prend le bas de l'image
 puisqu'en général il est plus problable que la mer s'y trouve"""
@@ -53,3 +53,4 @@ def normalize_representation(image_data):
     for i, d in enumerate(image_data):
         d["representation"] = X_normalized[i]
     return image_data
+

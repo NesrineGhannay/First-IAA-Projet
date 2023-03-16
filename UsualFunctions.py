@@ -5,13 +5,12 @@ from PIL import Image
 import os
 import json
 import pickle
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, learning_curve
 from sklearn.naive_bayes import GaussianNB
 from skimage.transform import rescale, resize, downscale_local_mean
 from sklearn.linear_model import LogisticRegression
 import joblib
 from Hyperparametres import *
-
 
 
 """
@@ -24,6 +23,31 @@ other to be defined
 input = an image (jpg, png, gif)
 output = a new representation of the image
 """
+def raw_image_to_representation(image, representation):
+    if not image.endswith((".jpg", ".png", ".jpeg", ".jfif", ".JPG")):
+        return "Le fichier n'est pas une image valide"
+
+    img = Image.open(image)
+    width = 200
+    height = 200
+    image_redim = img.resize((width, height))
+
+    if representation == 'HC':
+        return histo_image(image_redim)
+
+    return "Représentation non disponible"
+
+
+"""
+Computes a representation of an image from the (gif, png, jpg...) file 
+representation can be (to extend) 
+'HC': color histogram
+'PX': tensor of pixels
+'GC': matrix of gray pixels 
+other to be defined
+input = an image (jpg, png, gif)
+output = a new representation of the image croped
+"""
 def raw_croped_image_to_representation(image, representation):
     # Vérification que le fichier est une image (en utilisant une extension d'image telle que .jpg ou .png)
     if not image.endswith((".jpg", ".png", ".jpeg", ".jfif", ".JPG")):
@@ -32,11 +56,11 @@ def raw_croped_image_to_representation(image, representation):
     img = Image.open(image)
 
     # on prend la partie basse de l'image
-    croped_image = moitie_basse(img)
+    croped_image = lower_crop_image(img)
 
     # On redimensionne l'image
-    width = 200
-    height = 200
+    width = 150
+    height = 150
     image_redim = croped_image.resize((width, height))
 
     if representation == 'HC':
@@ -51,20 +75,6 @@ def raw_croped_image_to_representation(image, representation):
     return "il y a un problème"  # voir ce qu'on retourne lorsque l'image a un pb
 
 
-
-def raw_image_to_representation(image, representation):
-    if not image.endswith((".jpg", ".png", ".jpeg", ".jfif", ".JPG")):
-        return "Le fichier n'est pas une image valide"
-
-    img = Image.open(image)
-    width = 200
-    height = 200
-    image_redim = img.resize((width, height))
-
-    if representation == 'HC':
-        return histo_image(image_redim)
-
-    return "Représentation non disponible"
 
 def histo_image(image):
     # img = Image.open(image)
@@ -82,11 +92,6 @@ def graymatrix_image(image):
     # image = Image.open(image)
     gray_image = np.array(image.convert('L'))
     return gray_image
-
-
-# print(len(raw_image_to_representation("but87.jpg", 'HC')))
-# print(raw_image_to_representation("but87.jpg", 'HC'))
-
 
 
 
@@ -107,7 +112,7 @@ def transform_to_vecteur(imageData):
             max_vector_size = vector.shape[0]
         image['representation'] = vector
 
-        # Remplissage des vecteurs plus petits avec des zéros
+    # Remplissage des vecteurs plus petits avec des zéros
     for dict in imageData:
         vector = dict['representation']
         if vector.shape[0] < max_vector_size:
@@ -136,7 +141,6 @@ stored in.
 """
 def load_transform_label_train_data(directory, representation):
     image_data = []
-    max_vector_size = 0
     # sous-dossiers contenus dans "directory"
     directories = [
         d for d in os.listdir(directory)
@@ -183,7 +187,6 @@ stored in.
 """
 def load_transform_label_train_data_croped(directory, representation):
     image_data = []
-    max_vector_size = 0
     # sous-dossiers contenus dans "directory"
     directories = [
         d for d in os.listdir(directory)
@@ -241,6 +244,20 @@ def load_transform_test_data(directory, representation):
 
     return samples_data
 
+
+
+"""
+Returns a data structure embedding test images described according to the 
+specified representation.
+-> Representation can be (to extend) 
+'HC': color histogram
+'PX': tensor of pixels 
+'GC': matrix of gray pixels 
+other to be defined
+input = where are the data, which represenation of the data must be produced ? 
+output = a structure (dictionnary ? Matrix ? File ?) where the images of the directory have been croped and transformed (but not labelled)
+-- uses function raw_image_to_representation
+"""
 def load_transform_test_data_croped(directory, representation):
     samples_data = []
     # Récupération de la liste des fichiers dans le dossier
@@ -387,9 +404,9 @@ def estimate_model_score(model, train_data, k):
 
 
 """
-permet de récupérer les données sous forme de vecteur 
+permet de récupérer les données sous forme de vecteur après les avoir rognée et y avoir extrait la caractéristique blue 
 """
-def getFinalData(fileData):
+def getFinalData_croped_blue(fileData):
     # transformation et labélisation des données
     data = load_transform_label_train_data_croped(fileData, 'HC')
     # normalisation des données
@@ -399,6 +416,21 @@ def getFinalData(fileData):
     # mise sous forme de vecteurs des données
     vector_data = transform_to_vecteur(data_blue)
     return vector_data
+
+"""
+permet de récupérer les données sous forme de vecteur après y avoir extrait la caractéristique blue 
+"""
+def getFinalData_blue(fileData):
+    # transformation et labélisation des données
+    data = load_transform_label_train_data(fileData, 'HC')
+    # normalisation des données
+    data_normalized = normalize_representation(data)
+    # Extraction de la caractéristique bleu
+    data_blue = extract_blue_channel(data_normalized)
+    # mise sous forme de vecteurs des données
+    vector_data = transform_to_vecteur(data_blue)
+    return vector_data
+
 
 
 """
@@ -414,4 +446,32 @@ def loadLearnedModel(fileModel):
     # Load the model from the file
     model_from_joblib = joblib.load(fileModel)
     return model_from_joblib
+
+
+
+def plot_learning_curve(model, title, X, y, cv=None, train_sizes=np.linspace(.1, 1.0, 5)):
+    plt.figure()
+    plt.title(title)
+    plt.xlabel("Training examples")
+    plt.ylabel("Score")
+    train_sizes, train_scores, test_scores = learning_curve(model, X, y, cv=cv, n_jobs=-1, train_sizes=train_sizes)
+    train_scores_mean = np.mean(train_scores, axis=1)
+    train_scores_std = np.std(train_scores, axis=1)
+    test_scores_mean = np.mean(test_scores, axis=1)
+    test_scores_std = np.std(test_scores, axis=1)
+    plt.grid()
+
+    plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
+                     train_scores_mean + train_scores_std, alpha=0.1,
+                     color="r")
+    plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
+                     test_scores_mean + test_scores_std, alpha=0.1, color="g")
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
+             label="Training score")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
+             label="Cross-validation score")
+
+    plt.legend(loc="best")
+
+    plt.plot()
 

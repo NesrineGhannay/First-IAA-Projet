@@ -1,7 +1,7 @@
 from RegressionLogistique import *
 from UsualFunctions import *
 import joblib
-from UsualFunctions import load_transform_label_train_data_v2
+from Hyperparametres import *
 
 
 
@@ -19,7 +19,7 @@ def classifyingImages(fileToClassify, modelFile, nameFilePrediction):
     # normalisation des données
     testDataNormalized = normalize_representation(testData)
     # Extraction de la caractéristique bleu
-    blueData = extract_blue_channel_2(testDataNormalized)
+    blueData = extract_blue_channel(testDataNormalized)
     # mise sous forme de vecteurs des données
     # vectorTestData = transform_to_vecteur(blueData)
 
@@ -32,9 +32,8 @@ def classifyingImages(fileToClassify, modelFile, nameFilePrediction):
 # Le fichier produit sera nommé "SIERRA.txt"
 # classifyingImages('TestCC2', 'LogisticRegression.pkl', "SIERRA")
 
-
 def score_SVM(filedata):
     modelSVM = SVM_Algorithm(filedata)
     return estimate_model_score(modelSVM, getFinalData(filedata), 5)
 
-print(score_SVM("Data"))
+# print(score_SVM("Data"))
