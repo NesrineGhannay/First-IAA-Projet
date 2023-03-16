@@ -10,24 +10,8 @@ from sklearn.naive_bayes import GaussianNB
 from skimage.transform import rescale, resize, downscale_local_mean
 from sklearn.linear_model import LogisticRegression
 import joblib
+from Hyperparametres import *
 
-"""Récupération des donnee images où on a extrait la caractéristique suivante : on prend le bas de l'image
-puisqu'en général il est plus problable que la mer s'y trouve"""
-def moitie_basse(image):
-    width, height = image.size
-    half_height = height // 2
-    bbox = (0, half_height, width, height)
-    img_moitie_basse = image.crop(bbox)
-    # img_moitie_basse.show()
-    return img_moitie_basse
-
-def motie_haute(image):
-    width, height = image.size
-    half_height = height // 2
-    bbox = (0, half_height, width, height)
-    img_moitie_basse = image.crop(bbox)
-    # img_moitie_basse.show()
-    return img_moitie_basse
 
 
 """
@@ -104,25 +88,6 @@ def graymatrix_image(image):
 # print(raw_image_to_representation("but87.jpg", 'HC'))
 
 
-def lower_crop_image(image):
-    # Size of the image in pixels (size of original image)
-    width, height = image.size
-
-    # Setting the points for cropped image
-    left = 0
-    top = height / 2
-    right = width
-    bottom = height
-
-    # Cropped image of above dimension
-    img = image.crop((left, top, right, bottom))
-
-    # Shows the image in image viewer
-    # img.show()
-    return img
-
-
-# lower_crop_image("but87.jpg")
 
 
 """
@@ -153,6 +118,8 @@ def transform_to_vecteur(imageData):
 
 
 
+
+
 """
 Returns a data structure embedding train images described according to the 
 specified representation and associate each image to its label.
@@ -167,7 +134,7 @@ directory have been transformed and labelled according to the directory they are
 stored in.
 -- uses function raw_image_to_representation
 """
-def load_transform_label_train_data_v2(directory, representation):
+def load_transform_label_train_data(directory, representation):
     image_data = []
     max_vector_size = 0
     # sous-dossiers contenus dans "directory"
@@ -244,7 +211,6 @@ def load_transform_label_train_data_croped(directory, representation):
 
     return image_data
 
-# print(load_transform_label_train_data("Data", "PX"))
 
 """
 Returns a data structure embedding test images described according to the 
@@ -429,7 +395,7 @@ def getFinalData(fileData):
     # normalisation des données
     data_normalized = normalize_representation(data)
     # Extraction de la caractéristique bleu
-    data_blue = extract_blue_channel_2(data_normalized)
+    data_blue = extract_blue_channel(data_normalized)
     # mise sous forme de vecteurs des données
     vector_data = transform_to_vecteur(data_blue)
     return vector_data
