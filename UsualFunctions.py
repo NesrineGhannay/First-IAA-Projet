@@ -9,9 +9,6 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
 from skimage.transform import rescale, resize, downscale_local_mean
 from sklearn.linear_model import LogisticRegression
-from LogisticRegression import *
-from SVM import *
-from KNN import *
 import joblib
 
 """Récupération des donnee images où on a extrait la caractéristique suivante : on prend le bas de l'image
