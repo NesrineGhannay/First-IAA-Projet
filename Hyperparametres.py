@@ -1,7 +1,4 @@
 import numpy as np
-
-"""Récupération des donnee images où on a extrait la caractéristique suivante : on prend le bas de l'image
-puisqu'en général il est plus problable que la mer s'y trouve"""
 from sklearn.preprocessing import StandardScaler
 
 
@@ -14,7 +11,8 @@ def motie_haute(image):
     return img_moitie_basse
 
 
-
+"""Récupération des donnee images où on a extrait la caractéristique suivante : on prend le bas de l'image
+puisqu'en général il est plus problable que la mer s'y trouve"""
 def lower_crop_image(image):
     # Size of the image in pixels (size of original image)
     width, height = image.size
@@ -43,6 +41,7 @@ def extract_blue_channel(data):
         nom = d['nom']
         new_data.append({'nom': nom, 'representation': representation, 'label': label})
     return new_data
+
 
 def normalize_representation(image_data):
     scaler = StandardScaler()
