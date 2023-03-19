@@ -5,7 +5,7 @@ from PIL import Image
 import os
 import json
 import pickle
-
+import random
 from sklearn.datasets import load_sample_image
 from sklearn.model_selection import cross_val_score, learning_curve, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
