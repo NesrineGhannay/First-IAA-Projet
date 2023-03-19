@@ -505,3 +505,213 @@ def classifyingImages(fileToClassify, modelFile, nameFilePrediction):
     # print("PredictedData", predictData)
     return write_predictions("Predictions", predictData, nameFilePrediction)
 
+
+
+def normalize_representation_dict(samples_data):
+    scaler = StandardScaler()
+    representations = [d["representation"] for d in samples_data]
+    max_len = 1024
+    representations_resized = [np.pad(x, (0, max_len - len(x)), 'constant', constant_values=(0,0)) if len(x) < max_len else x[:max_len] for x in representations]
+    X_normalized = scaler.fit_transform(representations_resized)
+    for i, d in enumerate(samples_data):
+        d["representation"] = X_normalized[i]
+    return samples_data
+
+
+
+def random_crop(image, crop_size):
+    width, height = image.size
+    crop_width, crop_height = crop_size
+    left = random.randint(0, width - crop_width)
+    top = random.randint(0, height - crop_height)
+    right = left + crop_width
+    bottom = top + crop_height
+    return image.crop((left, top, right, bottom))
+
+def random_rotate(image, angle_range=(-180,180)):
+    angle = random.uniform(angle_range[0], angle_range[1])
+    return image.rotate(angle)
+
+def random_zoom(image, zoom_range):
+    zoom_factor = random.uniform(*zoom_range)
+    w, h = image.size
+    new_w = int(w * zoom_factor)
+    new_h = int(h * zoom_factor)
+    left = random.randint(0, w - new_w)
+    top = random.randint(0, h - new_h)
+    right = left + new_w
+    bottom = top + new_h
+    return image.crop((left, top, right, bottom)).resize(image.size)
+
+
+
+
+def load_transform_label_train_data_crop(directory, representation):
+    image_data = []
+
+    # sous-dossiers contenus dans "directory"
+    directories = [
+        d for d in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, d))
+    ]
+
+    # classifications des images en parcourant chaque sous-dossier
+    for etiquette in directories:
+        # on accède à chaque sous-dossier de directory
+        subdir = os.path.join(directory, etiquette)
+        # labelisation et le stockage des images issues du sous-répertoire "Ailleurs" par -1
+        if etiquette == "Ailleurs":
+            for image in os.listdir(subdir):
+                img_path = os.path.join(subdir, image)
+                img = Image.open(img_path)
+                suffix=9
+                for i in range(3):
+                    w, h = img.size
+                    if h >= 150 and w >= 150:
+                        # On applique un crop aléatoire à chaque image
+                        cropped_img = random_crop(img, (150, 150))
+                        # On transforme chaque image croppée par sa représentation
+                        image_representation = histo_image(cropped_img)
+                        # On ajoute un dictionnaire contenant les informations de l'image
+                        image_data.append({'nom': f'{os.path.splitext(image)[0]}_crop_{suffix:02d}.jpg', 'label': -1, 'representation': image_representation})
+                        suffix+=1
+        # labelisation des images issues du sous-répertoire "Mer" par 1
+        elif etiquette == "Mer":
+            for image in os.listdir(subdir):
+                img_path = os.path.join(subdir, image)
+                img = Image.open(img_path)
+                suffix=9
+                for i in range(3):
+                    w, h = img.size
+                    if h >= 150 and w >= 150:
+                        # On applique un crop aléatoire à chaque image
+                        cropped_img = random_crop(img, (150, 150))
+                        # On transforme chaque image croppée par sa représentation
+                        image_representation = histo_image(cropped_img)
+                        # On ajoute un dictionnaire contenant les informations de l'image
+                        image_data.append({'nom':f'{os.path.splitext(image)[0]}_crop_{suffix:02d}.jpg', 'label': 1, 'representation': image_representation})
+                        suffix+=1
+    return image_data
+
+def load_transform_label_train_data_rotations(directory, representation):
+    image_data = []
+
+    # sous-dossiers contenus dans "directory"
+    directories = [
+        d for d in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, d))
+    ]
+
+    # classifications des images en parcourant chaque sous-dossier
+    for etiquette in directories:
+        # on accède à chaque sous-dossier de directory
+        subdir = os.path.join(directory, etiquette)
+        # labelisation et le stockage des images issues du sous-répertoire "Ailleurs" par -1
+        if etiquette == "Ailleurs":
+            for image in os.listdir(subdir):
+                img_path = os.path.join(subdir, image)
+                img = Image.open(img_path)
+                suffix=1
+                for i in range(3):
+                    # On effectue une rotation aléatoire sur chaque image
+                    rotated_img = random_rotate(img)
+                    # On transforme chaque image rotatée par sa représentation
+                    image_representation = histo_image(rotated_img)
+                    # On ajoute un dictionnaire contenant les informations de l'image
+                    image_data.append({'nom':f'{os.path.splitext(image)[0]}_crop_{suffix:02d}.jpg', 'label': -1, 'representation': image_representation})
+                    suffix+=1
+        # labelisation des images issues du sous-répertoire "Mer" par 1
+        elif etiquette == "Mer":
+            for image in os.listdir(subdir):
+                img_path = os.path.join(subdir, image)
+                img = Image.open(img_path)
+                suffix=1
+                for i in range(3):
+                    # On effectue une rotation aléatoire sur chaque image
+                    rotated_img = random_rotate(img)
+                    # On transforme chaque image rotatée par sa représentation
+                    image_representation = histo_image(rotated_img)
+                    # On ajoute un dictionnaire contenant les informations de l'image
+                    image_data.append({'nom':f'{os.path.splitext(image)[0]}_crop_{suffix:02d}.jpg', 'label': 1, 'representation': image_representation})
+                    suffix+=1
+    return image_data
+
+def load_transform_label_train_data_zoom(directory, representation):
+    image_data = []
+
+    # sous-dossiers contenus dans "directory"
+    directories = [
+        d for d in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, d))
+    ]
+
+    # classifications des images en parcourant chaque sous-dossier
+    for etiquette in directories:
+        # on accède à chaque sous-dossier de directory
+        subdir = os.path.join(directory, etiquette)
+        # labelisation et le stockage des images issues du sous-répertoire "Ailleurs" par -1
+        if etiquette == "Ailleurs":
+            for image in os.listdir(subdir):
+                img_path = os.path.join(subdir, image)
+                img = Image.open(img_path)
+                suffix=5
+                for i in range(3):
+                    # On effectue un zoom aléatoire sur chaque image
+                    zoomed_img = random_zoom(img, (0.2,0.7))
+                    # On transforme chaque image zoomée par sa représentation
+                    image_representation = histo_image(zoomed_img)
+                    # On ajoute un dictionnaire contenant les informations de l'image
+                    image_data.append({'nom':f'{os.path.splitext(image)[0]}_crop_{suffix:02d}.jpg', 'label': -1, 'representation': image_representation})
+                    suffix+=1
+        # labelisation des images issues du sous-répertoire "Mer" par 1
+        elif etiquette == "Mer":
+            for image in os.listdir(subdir):
+                img_path = os.path.join(subdir, image)
+                img = Image.open(img_path)
+                suffix=5
+                for i in range(3):
+                    # On effectue un zoom aléatoire sur chaque image
+                    zoomed_img = random_zoom(img, (0.2,0.7))
+                    # On transforme chaque image zoomée par sa représentation
+                    image_representation = histo_image(zoomed_img)
+                    # On ajoute un dictionnaire contenant les informations de l'image
+                    image_data.append({'nom':f'{os.path.splitext(image)[0]}_crop_{suffix:02d}.jpg', 'label': 1, 'representation': image_representation})
+                    suffix+=1
+    return image_data
+
+
+
+def calculate_accuracy(predicted_labels, train_data):
+    correct_predictions = 0
+    total_predictions = 0
+    for prediction in predicted_labels:
+        for data in train_data:
+            if prediction['nom'].startswith(data['nom']):
+                if prediction['label'] == data['label']:
+                    correct_predictions += 1
+                total_predictions += 1
+                break  # on a trouvé une correspondance, on passe à l'image suivante
+    if total_predictions == 0:
+        return 0.0
+    return float(correct_predictions) / total_predictions
+
+
+def predict_sample_label_2(data, model):
+    names = []
+    representations = []
+    predicted_labels = []
+
+    for image in data:
+        name = image["nom"]
+        representation = image["representation"]
+        names.append(name)
+        representations.append(representation)
+        predicted_label = predict_example_label(representation, model)
+        predicted_labels.append(predicted_label)
+    result = []
+
+    for i in range(len(data)):
+        image_dict = {"nom": names[i], "label": predicted_labels[i]}  # ne  renvoie  pas la représentation
+        result.append(image_dict)
+
+    return result
