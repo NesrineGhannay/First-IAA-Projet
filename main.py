@@ -10,4 +10,5 @@ from Caracteristiques import *
 # classifyingImages('TestCC2', 'LogisticRegression.pkl', "SIERRA")
 
 
-#MODIFICATION COUCOU  CV
+#MODIFICATION COUCOU  CVlllllllllllll
+#kldokdoazdk
