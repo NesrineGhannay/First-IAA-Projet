@@ -1,7 +1,7 @@
 from RegressionLogistique import *
 from UsualFunctions import *
 import joblib
-from Hyperparametres import *
+from Caracteristiques import *
 
 
 

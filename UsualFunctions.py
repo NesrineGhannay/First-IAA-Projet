@@ -5,12 +5,20 @@ from PIL import Image
 import os
 import json
 import pickle
-from sklearn.model_selection import cross_val_score, learning_curve
+
+from sklearn.datasets import load_sample_image
+from sklearn.model_selection import cross_val_score, learning_curve, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from skimage.transform import rescale, resize, downscale_local_mean
 from sklearn.linear_model import LogisticRegression
 import joblib
-from Hyperparametres import *
+from Caracteristiques import *
+
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, make_scorer
 
 
 """
@@ -496,3 +504,4 @@ def classifyingImages(fileToClassify, modelFile, nameFilePrediction):
     predictData = predict_sample_label(blueData, model)
     # print("PredictedData", predictData)
     return write_predictions("Predictions", predictData, nameFilePrediction)
+
