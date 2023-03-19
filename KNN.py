@@ -12,6 +12,7 @@ def learn_knn_model_from_data(train_data, n_neighbors):
 
 
 
+
 def estimate_model_score_cross(train_data, cv, scoring):
     # Préparation des données
     X_train = [d["representation"] for d in train_data]
