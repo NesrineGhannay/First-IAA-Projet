@@ -128,6 +128,4 @@ def SVM_score_algo(data_dir):
     print("Précision sur l'ensemble d'entraînement : {:.2f}%".format(accuracy_train * 100))
     print("Précision sur l'ensemble de test : {:.2f}%".format(accuracy_test * 100))
 
-SVM_score_algo("Data")
-
-# slt
+# SVM_score_algo("Data")

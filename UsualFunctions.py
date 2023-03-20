@@ -19,7 +19,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, make_scorer
-
+import random
+from SVM import load_transform_label_train_data_svm
 
 """
 Computes a representation of an image from the (gif, png, jpg...) file 
@@ -723,4 +724,6 @@ def predict_sample_label_2(data, model):
     #         X.append(image['representation'])
     #         y.append(image['label'])
     #     return X, y
+
+
 

@@ -77,3 +77,5 @@ def run_knn_classification(data_path, test_path, representation, k_neighbors=5):
 
     predicted_labels = predict_sample_label_2(test_data_normalized, model)
     write_predictions(os.path.join(data_path, "Predictions"), predicted_labels,'predictions.txt')
+
+# run_knn_classification("Data", "TestCC2", "HC")
