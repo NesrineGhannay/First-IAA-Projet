@@ -129,3 +129,5 @@ def SVM_score_algo(data_dir):
     print("Précision sur l'ensemble de test : {:.2f}%".format(accuracy_test * 100))
 
 SVM_score_algo("Data")
+
+# slt
