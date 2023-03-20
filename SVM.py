@@ -10,6 +10,7 @@ from sklearn import svm, model_selection
 from sklearn.model_selection import train_test_split
 from skimage.feature import local_binary_pattern
 import random
+from UsualFunctions import *
 
 
 def local_binary_pattern_features(gray_image, points=24, radius=3):
@@ -106,10 +107,10 @@ def load_transform_label_train_data_svm(directory):
 
     return image_data
 
+rotations = [0, 90, 180, 270]
+flip = True
 
 def SVM_score_algo(data_dir):
-    rotations = [0, 90, 180, 270]
-    flip = True
 
     image_data = load_transform_label_train_data_svm(data_dir)
 
@@ -127,3 +128,4 @@ def SVM_score_algo(data_dir):
     print("Précision sur l'ensemble d'entraînement : {:.2f}%".format(accuracy_train * 100))
     print("Précision sur l'ensemble de test : {:.2f}%".format(accuracy_test * 100))
 
+SVM_score_algo("Data")
