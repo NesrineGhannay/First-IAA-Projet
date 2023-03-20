@@ -12,7 +12,7 @@ from skimage.feature import local_binary_pattern
 import random
 from UsualFunctions import *
 
-
+#Gael et Simon
 def local_binary_pattern_features(gray_image, points=24, radius=3):
     lbp = local_binary_pattern(gray_image, points, radius, method='uniform')
     (hist, _) = np.histogram(lbp.ravel(), bins=np.arange(0, points + 3), range=(0, points + 2))
