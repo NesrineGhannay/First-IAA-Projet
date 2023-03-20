@@ -716,11 +716,11 @@ def predict_sample_label_2(data, model):
 
     return result
 
-    def get_X_y(data):
-        X = []
-        y = []
-        for image in data:
-            X.append(image['representation'])
-            y.append(image['label'])
-        return X, y
+    # def get_X_y(data_dico):
+    #     X = []
+    #     y = []
+    #     for image in data_dico:
+    #         X.append(image['representation'])
+    #         y.append(image['label'])
+    #     return X, y
 
