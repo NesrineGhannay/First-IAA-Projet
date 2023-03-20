@@ -719,7 +719,7 @@ def predict_sample_label_2(data, model):
     def get_X_y(data):
         X = []
         y = []
-        for image data:
+        for image in data:
             X.append(image['representation'])
             y.append(image['label'])
         return X, y
