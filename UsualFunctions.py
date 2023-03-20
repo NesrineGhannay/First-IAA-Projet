@@ -715,3 +715,12 @@ def predict_sample_label_2(data, model):
         result.append(image_dict)
 
     return result
+
+    def get_X_y(data):
+        X = []
+        y = []
+        for image data:
+            X.append(image['representation'])
+            y.append(image['label'])
+        return X, y
+
