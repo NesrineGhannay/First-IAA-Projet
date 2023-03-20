@@ -33,7 +33,7 @@ def random_crop(image, crop_size):
 def blue_ratio(image):
     blue_channel = np.array(image)[:, :, 2]
     total_pixels = blue_channel.size
-    blue_pixels = np.sum(blue_channel > 150)
+    blue_pixels = np.sum(blue_channel >100)
     blue_ratio = blue_pixels / total_pixels
     return np.array([blue_ratio])
 
