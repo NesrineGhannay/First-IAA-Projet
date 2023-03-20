@@ -42,5 +42,5 @@ def score_algo(learnedModel, fileData):
     data = getFinalData_croped_blue(fileData)
     return estimate_model_score(learnedModel, data, 5)
 
-print(score_algo(logisticRegression('Data'), 'Data'))
+# print(score_algo(logisticRegression('Data'), 'Data'))
 # 0.7094916250367322 (image coupée et où l'on a extrait le paramètre blue)
