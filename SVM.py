@@ -12,17 +12,19 @@ from skimage.feature import local_binary_pattern
 import random
 from UsualFunctions import *
 
-
-
 rotations = [0, 90, 180, 270]
 flip = True
 
+#Autors: Gaël and Simon
+#Input : A gray matrix, as well as two optional parameters points and radius which define respectively the number of points and the radius of the neighborhood used to extract the LBP (Local Binary Pattern) features.
+#Output : A normalized histogram obtained by first computing a histogram of the extracted LBP values with the local_binary_pattern function, and normalizing this histogram by dividing it by the sum of its elements.
 def local_binary_pattern_features(gray_image, points=24, radius=3):
     lbp = local_binary_pattern(gray_image, points, radius, method='uniform')
     (hist, _) = np.histogram(lbp.ravel(), bins=np.arange(0, points + 3), range=(0, points + 2))
     hist = hist.astype("float")
     hist /= (hist.sum() + 1e-6)
     return hist
+
 
 def random_crop(image, crop_size):
     width, height = image.size
