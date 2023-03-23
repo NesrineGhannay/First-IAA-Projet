@@ -21,8 +21,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, make_scorer
 import random
 
-#Nesrine et Simon
 """
+@author : Nesrine & Simon
 Computes a representation of an image from the (gif, png, jpg...) file 
 representation can be (to extend) 
 'HC': color histogram
@@ -46,8 +46,8 @@ def raw_image_to_representation(image, representation):
 
     return "Représentation non disponible"
 
-#Nesrine et Simon
 """
+@author : Nesrine & Simon
 Computes a representation of an image from the (gif, png, jpg...) file 
 representation can be (to extend) 
 'HC': color histogram
@@ -84,24 +84,24 @@ def raw_croped_image_to_representation(image, representation):
     return "il y a un problème"  # voir ce qu'on retourne lorsque l'image a un pb
 
 
-#Nesrine et Simon
+"""@author : Nesrine & Simon"""
 def histo_image(image):
     return image.histogram()
 
-#Nesrine et Simon
+"""@author : Nesrine & Simon"""
 def tensor_image(image):
     image_np = np.array(image)
     tensor = image_np.astype('float32') / 255.0
     return tensor
 
-#Nesrine et Simon
+"""@author : Nesrine & Simon"""
 def graymatrix_image(image):
     gray_image = np.array(image.convert('L'))
     return gray_image
 
 
-#Nesrine et Gaël
 """
+@author : Nesrine & Gael
 Returns a data structure embedding train images described according to the 
 specified representation and associate each image to its label (image_representation tous de la forme de vecteur)
 input = imageData
@@ -166,6 +166,7 @@ def random_zoom(image, zoom_range):
 
 
 """
+@author : Nesrine 
 Returns a data structure embedding train images described according to the 
 specified representation and associate each image to its label.
 -> Representation can be (to extend) 
@@ -212,6 +213,7 @@ def load_transform_label_train_data(directory, representation):
 
 
 """
+@author : Nesrine 
 Returns a data structure embedding train images described according to the 
 specified representation and associate each image to its label.
 -> Representation can be (to extend) 
@@ -399,6 +401,7 @@ def load_transform_label_train_data_zoom(directory, representation):
 
 
 """
+@author : Nesrine 
 Returns a data structure embedding test images described according to the 
 specified representation.
 -> Representation can be (to extend) 
@@ -430,6 +433,7 @@ def load_transform_test_data(directory, representation):
 
 
 """
+@author : Nesrine 
 Returns a data structure embedding test images described according to the 
 specified representation.
 -> Representation can be (to extend) 
@@ -437,9 +441,9 @@ specified representation.
 'PX': tensor of pixels 
 'GC': matrix of gray pixels 
 other to be defined
-input = where are the data, which represenation of the data must be produced ? 
-output = a structure (dictionnary ? Matrix ? File ?) where the images of the directory have been croped and transformed (but not labelled)
--- uses function raw_image_to_representation
+input = where are the data, which represenation of the data must be produced  
+output = a structure (dictionnary) where the images of the directory have been croped and transformed (but not labelled)
+-- uses function raw_croped_image_to_representation
 """
 def load_transform_test_data_croped(directory, representation):
     samples_data = []
@@ -457,8 +461,9 @@ def load_transform_test_data_croped(directory, representation):
 
     return samples_data
 
-#Nesrine et Simon
+
 """
+@authors : Nesrine & Simon
 Learn a model (function) from a representation of data, using the algorithm 
 and its hyper-parameters described in algo_dico
 Here data has been previously transformed to the representation used to learn
@@ -575,8 +580,9 @@ def write_predictions(directory, dataPredicted, newNameFile):
         return "erreur lors de l'écriture du fichier"
 
 
-#Nesrine et Simon
+
 """
+@authors : Nesrine & Simon
 Estimates the accuracy of a previously learned model using train data, 
 either through CV or mean hold-out, with k folds.
 Here data has been previously transformed to the representation used to learn
@@ -606,7 +612,9 @@ def estimate_model_score(model, train_data, k):
 
 
 """
-Permet d'enregistrer un modèle appris sous format .pkl
+@author: Nesrine
+Allows to save a learned model as a ". pkl" kit thanks to the use of the pickle library. The model will be save in the directory "Models"
+input: the learned model and the name under which it will be saved
 """
 def saveModel(model, nom):
     folder_name = 'Models'
@@ -616,7 +624,12 @@ def saveModel(model, nom):
     joblib.dump(model, namePKL)
 
 
-"""Permet de charger un modèl enregistrer au préalable .pkl"""
+"""
+@author Nesrine 
+Allows to load a learned and saved model in the directory "Model" 
+input: the name of the file where the saved model is located
+output: the model
+"""
 def loadLearnedModel(fileModel):
     folder_name = 'Models'
     file_path = os.path.join(folder_name, fileModel)
@@ -626,9 +639,10 @@ def loadLearnedModel(fileModel):
 
 
 """
-Calcul les prédictions pour les images stockés dans un fichier
-input = nom du fichier contenant les images à produire ainsi que l'algorithme d'apprentissage utilisé
-output = un fichier .txt contenant toutes les prédictions faites grâce à l'algorithme d'apprentissage choisit
+@author : Nesrine 
+Compute predictions for images stored in a file. (used for logistic regression)
+input = name of the file containing the images to be produced and the learning algorithm used
+output = a file . txt containing all the predictions made by the chosen learning algorithm
 """
 def classifyingImages(fileToClassify, modelFile, nameFilePrediction):
     # Charge le model appris

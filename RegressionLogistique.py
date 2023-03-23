@@ -1,11 +1,11 @@
 from UsualFunctions import *
-from joblib import *
-
-
 
 
 """
-permet de récupérer les données sous forme de vecteur après les avoir rognée et y avoir extrait la caractéristique blue 
+@author: Nesrine
+recovers data as a vector after cropping and extracting the blue characteristic
+input: the learning data file
+output: data transformed after data extraction
 """
 def getFinalData_croped_blue(fileData):
     # transformation et labélisation des données
@@ -20,7 +20,8 @@ def getFinalData_croped_blue(fileData):
 
 
 """
-A partir d'un fichier de données pris en paramètre apprend grâce à la regression logistique un model
+@author: Nesrine 
+From a data file taken as a parameter, learns through logistic regression a model
 """
 def logisticRegression(filedata):
     data = getFinalData_croped_blue(filedata)
@@ -32,14 +33,12 @@ def logisticRegression(filedata):
     learnedModel = learn_model_from_data(data, lr)
     return learnedModel
 
-# def getData_augmented(fileData):
-#         image_data = load_transform_label_train_data_svm(fileData)
-#         return image_data
-
 
 
 """
-Permet d'enregistrer le model de regression logistique appris 
+@author: Nesrine
+Saves the learned logistic regression model
+input: the name of the training file
 """
 def saveLogisticRegression(fileData):
     modelLearned = logisticRegression(fileData)
@@ -50,12 +49,12 @@ def saveLogisticRegression(fileData):
 
 
 '''
-Permet d'obetenir le pourcentage de réussite de notre selon le model appris et le fichier sur lequel nous avons appris le model
+@author: Nesrine
+Allows to keep the success percentage of our model
+input: the learned model and the learning file
+output: a percentage representing the learning rate of the model taken as a parameter
+function used: getFinalData_croped_blue() & estimate_model_score()
 '''
 def score_algo(learnedModel, fileData):
     data = getFinalData_croped_blue(fileData)
     return estimate_model_score(learnedModel, data, 5)
-
-
-# 0.7094916250367322 (image coupée et où l'on a extrait le paramètre blue)
-# Score en augmentant les données : 0.6988859854215377

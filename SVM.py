@@ -139,7 +139,7 @@ def get_features_array(dico_data):
 def saveSVM(filedata):
     model = SVM_model(filedata)
     saveModel(model, "SVM")
-saveSVM("Data")
+# saveSVM("Data")
 
 def load_test_data_svm(fileTestData):
     test_data = []
