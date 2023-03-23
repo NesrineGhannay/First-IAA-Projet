@@ -86,19 +86,16 @@ def raw_croped_image_to_representation(image, representation):
 
 
 def histo_image(image):
-    # img = Image.open(image)
     return image.histogram()
 
 
 def tensor_image(image):
-    # image = Image.open(image)
     image_np = np.array(image)
     tensor = image_np.astype('float32') / 255.0
     return tensor
 
 
 def graymatrix_image(image):
-    # image = Image.open(image)
     gray_image = np.array(image.convert('L'))
     return gray_image
 
@@ -426,19 +423,7 @@ def getFinalData_croped_blue(fileData):
     vector_data = transform_to_vecteur(data_blue)
     return vector_data
 
-"""
-permet de récupérer les données sous forme de vecteur après y avoir extrait la caractéristique blue 
-"""
-def getFinalData_blue(fileData):
-    # transformation et labélisation des données
-    data = load_transform_label_train_data(fileData, 'HC')
-    # normalisation des données
-    data_normalized = normalize_representation(data)
-    # Extraction de la caractéristique bleu
-    data_blue = extract_blue_channel(data_normalized)
-    # mise sous forme de vecteurs des données
-    vector_data = transform_to_vecteur(data_blue)
-    return vector_data
+
 
 
 
