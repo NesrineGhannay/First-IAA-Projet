@@ -153,7 +153,7 @@ def predict_and_display(clf, X_test, y_test, image_data):
 rotations = [0, 90, 180, 270]
 flip = True
 
-data_dir = "C:/Users/GaelT/PycharmProjects/pythonProject4/Data"
+data_dir = "Data"
 
 image_data = load_transform_label_train_data(data_dir)
 
@@ -173,7 +173,7 @@ with open(model_filename, 'rb') as file:
     loaded_model = pickle.load(file)
 
 # Traitez les images du dossier `TestCC2` et extrayez les caractéristiques
-test_cc2_dir = "C:/Users/GaelT/PycharmProjects/pythonProject4/TestCC2"
+test_cc2_dir = "Data"
 test_cc2_data = []
 
 for image in os.listdir(test_cc2_dir):
