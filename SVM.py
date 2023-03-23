@@ -25,7 +25,9 @@ def local_binary_pattern_features(gray_image, points=24, radius=3):
     hist /= (hist.sum() + 1e-6)
     return hist
 
-
+#Autors : Gaël and Simon
+#Input : An image and a crop size as a tuple (crop_width, crop_height).
+#Output : A randomly cropped version of the input image, according to the cropping dimensions specified in the input.
 def random_crop(image, crop_size):
     width, height = image.size
     crop_width, crop_height = crop_size
