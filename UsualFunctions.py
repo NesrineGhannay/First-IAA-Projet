@@ -21,7 +21,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, make_scorer
 import random
 
-
+#Nesrine et Simon
 """
 Computes a representation of an image from the (gif, png, jpg...) file 
 representation can be (to extend) 
@@ -46,7 +46,7 @@ def raw_image_to_representation(image, representation):
 
     return "Représentation non disponible"
 
-
+#Nesrine et Simon
 """
 Computes a representation of an image from the (gif, png, jpg...) file 
 representation can be (to extend) 
@@ -84,23 +84,23 @@ def raw_croped_image_to_representation(image, representation):
     return "il y a un problème"  # voir ce qu'on retourne lorsque l'image a un pb
 
 
-
+#Nesrine et Simon
 def histo_image(image):
     return image.histogram()
 
-
+#Nesrine et Simon
 def tensor_image(image):
     image_np = np.array(image)
     tensor = image_np.astype('float32') / 255.0
     return tensor
 
-
+#Nesrine et Simon
 def graymatrix_image(image):
     gray_image = np.array(image.convert('L'))
     return gray_image
 
 
-
+#Nesrine et Gaël
 """
 Returns a data structure embedding train images described according to the 
 specified representation and associate each image to its label (image_representation tous de la forme de vecteur)
@@ -457,7 +457,7 @@ def load_transform_test_data_croped(directory, representation):
 
     return samples_data
 
-
+#Nesrine et Simon
 """
 Learn a model (function) from a representation of data, using the algorithm 
 and its hyper-parameters described in algo_dico
@@ -537,6 +537,7 @@ def predict_sample_label_2(data, model):
 
     return result
 
+#Simon
 """
 Save the predictions on data to a text file with syntax:
 filename <space> label (either -1 or 1)  
@@ -574,7 +575,7 @@ def write_predictions(directory, dataPredicted, newNameFile):
         return "erreur lors de l'écriture du fichier"
 
 
-
+#Nesrine et Simon
 """
 Estimates the accuracy of a previously learned model using train data, 
 either through CV or mean hold-out, with k folds.
