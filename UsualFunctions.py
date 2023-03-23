@@ -128,7 +128,41 @@ def transform_to_vecteur(imageData):
     return imageData
 
 
+def normalize_representation_dict(samples_data):
+    scaler = StandardScaler()
+    representations = [d["representation"] for d in samples_data]
+    max_len = 1024
+    representations_resized = [np.pad(x, (0, max_len - len(x)), 'constant', constant_values=(0,0)) if len(x) < max_len else x[:max_len] for x in representations]
+    X_normalized = scaler.fit_transform(representations_resized)
+    for i, d in enumerate(samples_data):
+        d["representation"] = X_normalized[i]
+    return samples_data
 
+
+
+def random_crop(image, crop_size):
+    width, height = image.size
+    crop_width, crop_height = crop_size
+    left = random.randint(0, width - crop_width)
+    top = random.randint(0, height - crop_height)
+    right = left + crop_width
+    bottom = top + crop_height
+    return image.crop((left, top, right, bottom))
+
+def random_rotate(image, angle_range=(-180,180)):
+    angle = random.uniform(angle_range[0], angle_range[1])
+    return image.rotate(angle)
+
+def random_zoom(image, zoom_range):
+    zoom_factor = random.uniform(*zoom_range)
+    w, h = image.size
+    new_w = int(w * zoom_factor)
+    new_h = int(h * zoom_factor)
+    left = random.randint(0, w - new_w)
+    top = random.randint(0, h - new_h)
+    right = left + new_w
+    bottom = top + new_h
+    return image.crop((left, top, right, bottom)).resize(image.size)
 
 
 """
@@ -483,6 +517,26 @@ def predict_sample_label(data, model):
 
 
 
+def predict_sample_label_2(data, model):
+    names = []
+    representations = []
+    predicted_labels = []
+
+    for image in data:
+        name = image["nom"]
+        representation = image["representation"]
+        names.append(name)
+        representations.append(representation)
+        predicted_label = predict_example_label(representation, model)
+        predicted_labels.append(predicted_label)
+    result = []
+
+    for i in range(len(data)):
+        image_dict = {"nom": names[i], "label": predicted_labels[i]}  # ne  renvoie  pas la représentation
+        result.append(image_dict)
+
+    return result
+
 """
 Save the predictions on data to a text file with syntax:
 filename <space> label (either -1 or 1)  
@@ -554,16 +608,20 @@ def estimate_model_score(model, train_data, k):
 Permet d'enregistrer un modèle appris sous format .pkl
 """
 def saveModel(model, nom):
-    namePKL = str(nom + '.pkl')
+    folder_name = 'Models'
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    namePKL = os.path.join(folder_name, nom + '.pkl')
     joblib.dump(model, namePKL)
 
 
 """Permet de charger un modèl enregistrer au préalable .pkl"""
 def loadLearnedModel(fileModel):
+    folder_name = 'Models'
+    file_path = os.path.join(folder_name, fileModel)
     # Load the model from the file
-    model_from_joblib = joblib.load(fileModel)
+    model_from_joblib = joblib.load(file_path)
     return model_from_joblib
-
 
 
 """
@@ -589,45 +647,6 @@ def classifyingImages(fileToClassify, modelFile, nameFilePrediction):
 
 
 
-def normalize_representation_dict(samples_data):
-    scaler = StandardScaler()
-    representations = [d["representation"] for d in samples_data]
-    max_len = 1024
-    representations_resized = [np.pad(x, (0, max_len - len(x)), 'constant', constant_values=(0,0)) if len(x) < max_len else x[:max_len] for x in representations]
-    X_normalized = scaler.fit_transform(representations_resized)
-    for i, d in enumerate(samples_data):
-        d["representation"] = X_normalized[i]
-    return samples_data
-
-
-
-def random_crop(image, crop_size):
-    width, height = image.size
-    crop_width, crop_height = crop_size
-    left = random.randint(0, width - crop_width)
-    top = random.randint(0, height - crop_height)
-    right = left + crop_width
-    bottom = top + crop_height
-    return image.crop((left, top, right, bottom))
-
-def random_rotate(image, angle_range=(-180,180)):
-    angle = random.uniform(angle_range[0], angle_range[1])
-    return image.rotate(angle)
-
-def random_zoom(image, zoom_range):
-    zoom_factor = random.uniform(*zoom_range)
-    w, h = image.size
-    new_w = int(w * zoom_factor)
-    new_h = int(h * zoom_factor)
-    left = random.randint(0, w - new_w)
-    top = random.randint(0, h - new_h)
-    right = left + new_w
-    bottom = top + new_h
-    return image.crop((left, top, right, bottom)).resize(image.size)
-
-
-
-
 def calculate_accuracy(predicted_labels, train_data):
     correct_predictions = 0
     total_predictions = 0
@@ -643,25 +662,6 @@ def calculate_accuracy(predicted_labels, train_data):
     return float(correct_predictions) / total_predictions
 
 
-def predict_sample_label_2(data, model):
-    names = []
-    representations = []
-    predicted_labels = []
-
-    for image in data:
-        name = image["nom"]
-        representation = image["representation"]
-        names.append(name)
-        representations.append(representation)
-        predicted_label = predict_example_label(representation, model)
-        predicted_labels.append(predicted_label)
-    result = []
-
-    for i in range(len(data)):
-        image_dict = {"nom": names[i], "label": predicted_labels[i]}  # ne  renvoie  pas la représentation
-        result.append(image_dict)
-
-    return result
 
     # def get_X_y(data_dico):
     #     X = []

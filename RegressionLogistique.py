@@ -1,6 +1,5 @@
 from UsualFunctions import *
 from joblib import *
-from SVM import *
 
 
 
@@ -45,7 +44,7 @@ Permet d'enregistrer le model de regression logistique appris
 def saveLogisticRegression(fileData):
     modelLearned = logisticRegression(fileData)
     # Save the model as a pickle in a file
-    joblib.dump(modelLearned, 'LogisticRegression.pkl')
+    saveModel(modelLearned, "LogisticRegression")
 
 # saveLogisticRegression("Data")
 
