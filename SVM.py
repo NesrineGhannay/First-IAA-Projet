@@ -10,31 +10,12 @@ from sklearn import svm, model_selection
 from sklearn.model_selection import train_test_split
 from skimage.feature import local_binary_pattern
 import random
-import pickle
-
-def raw_image_to_representation(image, representation):
-    if not image.endswith((".jpg", ".png", ".jpeg")):
-        return "Le fichier n'est pas une image valide"
-
-    img = Image.open(image)
-    width = 200
-    height = 200
-    image_redim = img.resize((width, height))
-
-    if representation == 'HC':
-        return histo_image(image_redim)
-
-    if representation == 'PX':
-        return tensor_image(image_redim)
-
-    if representation == 'GC':
-        return graymatrix_image(image_redim)
-
-    return "il y a un problème"
+from UsualFunctions import *
 
 
-def histo_image(image):
-    return image.histogram()
+
+rotations = [0, 90, 180, 270]
+flip = True
 
 def local_binary_pattern_features(gray_image, points=24, radius=3):
     lbp = local_binary_pattern(gray_image, points, radius, method='uniform')
@@ -52,15 +33,6 @@ def random_crop(image, crop_size):
     y = random.randint(0, max_y)
     return image.crop((x, y, x + crop_width, y + crop_height))
 
-def tensor_image(image):
-    image_np = np.array(image)
-    tensor = image_np.astype('float32') / 255.0
-    return tensor.flatten()  # Ajout de .flatten() pour aplatir le tenseur en un tableau 1D
-
-
-def graymatrix_image(image):
-    gray_image = np.array(image.convert('L'))
-    return gray_image
 
 def blue_ratio(image):
     blue_channel = np.array(image)[:, :, 2]
@@ -116,7 +88,7 @@ def extract_features(color_image, gray_image):
     return feature_vector
 
 
-def load_transform_label_train_data(directory):
+def load_transform_label_train_data_svm(directory):
     image_data = []
     label_dirs = {'Ailleurs': -1, 'Mer': 1}
 
@@ -150,43 +122,49 @@ def predict_and_display(clf, X_test, y_test, image_data):
         print(f"Prédiction correcte: {is_correct}")
         print()
 
-rotations = [0, 90, 180, 270]
-flip = True
+def SVM_model(filedata):
+    image_data = load_transform_label_train_data_svm(filedata)
+    X, y = get_features_array(image_data)
+    svm_model = svm.SVC(kernel='linear', C=1)
+    finalModel = learn_model_from_data(image_data, svm_model)
+    return finalModel
 
-data_dir = "Data"
 
-image_data = load_transform_label_train_data(data_dir)
+def get_features_array(dico_data):
+    features_array = [d['representation'] for d in dico_data]
+    labels_array = [d['label'] for d in dico_data]
+    return features_array, labels_array
 
-features_array = [d['representation'] for d in image_data]
-labels_array = [d['label'] for d in image_data]
+# Enregistrez le modèle SVM entraîné
+def saveSVM(filedata):
+    model = SVM_model(filedata)
+    saveModel(model, "SVM")
+# saveSVM("Data")
 
-clf = svm.SVC(kernel='linear', C=1)
-clf.fit(features_array, labels_array)
+def load_test_data_svm(fileTestData):
+    test_data = []
+    for image in os.listdir(fileTestData):
+        img_path = os.path.join(fileTestData, image)
+        color_image = process_image(img_path)
+        gray_image = color_image.convert('L')
+        feature_vector = extract_features(color_image, gray_image)
+        test_data.append({'nom': image, 'representation': feature_vector})
+    return test_data
 
-# Enregistrez le modèle entraîné
-model_filename = "trained_model.pkl"
-with open(model_filename, 'wb') as file:
-    pickle.dump(clf, file)
 
-# Chargez le modèle enregistré
-with open(model_filename, 'rb') as file:
-    loaded_model = pickle.load(file)
+def predict_with_SVM(fileTestData, model):
+    testData = load_test_data_svm(fileTestData)
+    for data in testData:
+        image_name = data['nom']
+        feature_vector = data['representation']
+        prediction = model.predict([feature_vector])[0]
+        data['label'] = prediction
+    return testData
 
-# Traitez les images du dossier `TestCC2` et extrayez les caractéristiques
-test_cc2_dir = "Data"
-test_cc2_data = []
 
-for image in os.listdir(test_cc2_dir):
-    img_path = os.path.join(test_cc2_dir, image)
-    color_image = process_image(img_path)
-    gray_image = color_image.convert('L')
-    feature_vector = extract_features(color_image, gray_image)
-    test_cc2_data.append({'nom': image, 'representation': feature_vector})
+def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
+    svmModel = loadLearnedModel(fileModel)
+    predictedData = predict_with_SVM(fileTestData, svmModel)
+    write_predictions("Predictions", predictedData, fileForPredictedData)
 
-# Prédisez les résultats à l'aide du modèle chargé
-for data in test_cc2_data:
-    image_name = data['nom']
-    feature_vector = data['representation']
-    prediction = loaded_model.predict([feature_vector])[0]
 
-    print(f"Nom du fichier: {image_name} : {prediction}")

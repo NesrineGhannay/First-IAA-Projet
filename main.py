@@ -2,13 +2,14 @@ from RegressionLogistique import *
 from UsualFunctions import *
 import joblib
 from Caracteristiques import *
+from SVM import *
 
 
 
 # Permet de prédire les labels des images contenus dans le dossier "TestCC2" avec le model appris "LogisticRegression.pkl".
 # Le fichier produit sera nommé "SIERRA_LG.txt"
-classifyingImages('TestCC2', 'LogisticRegression.pkl', "SIERRA_LG")
+# classifyingImages('TestCC2', 'LogisticRegression.pkl', "SIERRA_LG")
 
-
-#MODIFICATION COUCOU  CVlllllllllllll
-#kldokdoazdk
+# Permet de prédire les labels des iamges dans le dossier "TestCC2 avec le model appris "SVM.pkl"
+# Le fichier produit sera nommé "PredictionCC2_SIERRA.txt"
+# mainSVM_prediction("SVM.pkl", "TestCC2", "PreditionCC2_SIERRA")

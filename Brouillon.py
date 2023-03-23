@@ -31,5 +31,5 @@ def extract_fft(data):
     return features
 
 
-datas_dico = load_transform_label_train_data("Data", 'GC')
-extract_fft(datas_dico)
+# datas_dico = load_transform_label_train_data("Data", 'GC')
+# extract_fft(datas_dico)

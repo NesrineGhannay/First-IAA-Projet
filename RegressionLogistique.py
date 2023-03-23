@@ -2,6 +2,24 @@ from UsualFunctions import *
 from joblib import *
 from SVM import *
 
+
+
+
+"""
+permet de récupérer les données sous forme de vecteur après les avoir rognée et y avoir extrait la caractéristique blue 
+"""
+def getFinalData_croped_blue(fileData):
+    # transformation et labélisation des données
+    data = load_transform_label_train_data_croped(fileData, 'HC')
+    # normalisation des données
+    data_normalized = normalize_representation(data)
+    # Extraction de la caractéristique bleu
+    data_blue = extract_blue_channel(data_normalized)
+    # mise sous forme de vecteurs des données
+    vector_data = transform_to_vecteur(data_blue)
+    return vector_data
+
+
 """
 A partir d'un fichier de données pris en paramètre apprend grâce à la regression logistique un model
 """
@@ -15,9 +33,9 @@ def logisticRegression(filedata):
     learnedModel = learn_model_from_data(data, lr)
     return learnedModel
 
-def getData_augmented(fileData):
-        image_data = load_transform_label_train_data_svm(fileData)
-        return image_data
+# def getData_augmented(fileData):
+#         image_data = load_transform_label_train_data_svm(fileData)
+#         return image_data
 
 
 
@@ -30,6 +48,7 @@ def saveLogisticRegression(fileData):
     joblib.dump(modelLearned, 'LogisticRegression.pkl')
 
 # saveLogisticRegression("Data")
+
 
 '''
 Permet d'obetenir le pourcentage de réussite de notre selon le model appris et le fichier sur lequel nous avons appris le model
