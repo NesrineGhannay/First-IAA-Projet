@@ -140,8 +140,8 @@ def load_transform_label_train_data_svm(directory):
 
 """
 @autors : Gaël and Simon
-Input : a directory containing the training images.
-Output : a list of elements, each representing a transformed and labeled image. Each element contains the name of the image, its label (1 for "Sea" and -1 for "Elsewhere") and its representation as a feature vector.
+Input : a trained classifier (clf), a list of features (X_test) and labels (y_test) for a test data set, and the corresponding original image data (image_data).
+Output : just displays the results on the screen.
 """
 def predict_and_display(clf, X_test, y_test, image_data):
     predictions = clf.predict(X_test)
@@ -158,6 +158,11 @@ def predict_and_display(clf, X_test, y_test, image_data):
         print(f"Prédiction correcte: {is_correct}")
         print()
 
+"""
+@autors : Gaël and Simon
+Input : a directory containing the data to train the model using SVM.
+Output : the trained SVM model (finalModel).
+"""
 def SVM_model(filedata):
     image_data = load_transform_label_train_data_svm(filedata)
     X, y = get_features_array(image_data)
@@ -165,18 +170,31 @@ def SVM_model(filedata):
     finalModel = learn_model_from_data(image_data, svm_model)
     return finalModel
 
-
+"""
+@autors : Gaël and Simon
+Input : a dictionary containing transformed and labeled image data
+Output : two numpy arrays, one containing the features extracted from the images and the other containing the associated labels.
+"""
 def get_features_array(dico_data):
     features_array = [d['representation'] for d in dico_data]
     labels_array = [d['label'] for d in dico_data]
     return features_array, labels_array
 
-# Enregistrez le modèle SVM entraîné
+"""
+@autors : Gaël and Simon
+Input : a directory containing the data to train the model using SVM, a model that will be saved now.
+Output : nothing.
+"""
 def saveSVM(filedata):
     model = SVM_model(filedata)
     saveModel(model, "SVM")
 # saveSVM("Data")
 
+"""
+@autors : Gaël and Simon
+Input : the path to a directory containing images to be tested.
+Output : list of dictionaries, each containing the name of an image and its representation as a feature vector extracted from this image.
+"""
 def load_test_data_svm(fileTestData):
     test_data = []
     for image in os.listdir(fileTestData):
@@ -187,7 +205,11 @@ def load_test_data_svm(fileTestData):
         test_data.append({'nom': image, 'representation': feature_vector})
     return test_data
 
-
+"""
+@autors : Gaël and Simon
+Input : a directory containing test images (fileTestData) and a trained SVM model (model).
+Output : a list containing dictionaries for each image, with the keys 'name' (the name of the image file) and 'label' (the model prediction).
+"""
 def predict_with_SVM(fileTestData, model):
     testData = load_test_data_svm(fileTestData)
     for data in testData:
@@ -197,7 +219,11 @@ def predict_with_SVM(fileTestData, model):
         data['label'] = prediction
     return testData
 
-
+"""
+@autors : Gaël and Simon
+Input : three arguments as input: fileModel(the path to the saved trained SVM model), fileTestData(the path to the directory containing test images), and fileForPredictedData (the path to the file where the predicted labels for the test images will be saved). 
+Output : only writes the predicted labels to a file.
+"""
 def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
     svmModel = loadLearnedModel(fileModel)
     predictedData = predict_with_SVM(fileTestData, svmModel)
