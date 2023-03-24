@@ -15,9 +15,11 @@ from UsualFunctions import *
 rotations = [0, 90, 180, 270]
 flip = True
 
-#Autors: Gaël and Simon
-#Input : A gray matrix, as well as two optional parameters points and radius which define respectively the number of points and the radius of the neighborhood used to extract the LBP (Local Binary Pattern) features.
-#Output : A normalized histogram obtained by first computing a histogram of the extracted LBP values with the local_binary_pattern function, and normalizing this histogram by dividing it by the sum of its elements.
+"""
+@authors : Gaël and Simon
+Input : a gray matrix, as well as two optional parameters points and radius which define respectively the number of points and the radius of the neighborhood used to extract the LBP (Local Binary Pattern) features.
+Output : a normalized histogram obtained by first computing a histogram of the extracted LBP values with the local_binary_pattern function, and normalizing this histogram by dividing it by the sum of its elements.
+"""
 def local_binary_pattern_features(gray_image, points=24, radius=3):
     lbp = local_binary_pattern(gray_image, points, radius, method='uniform')
     (hist, _) = np.histogram(lbp.ravel(), bins=np.arange(0, points + 3), range=(0, points + 2))
@@ -25,9 +27,11 @@ def local_binary_pattern_features(gray_image, points=24, radius=3):
     hist /= (hist.sum() + 1e-6)
     return hist
 
-#Autors : Gaël and Simon
-#Input : An image and a crop size as a tuple (crop_width, crop_height).
-#Output : A randomly cropped version of the input image, according to the cropping dimensions specified in the input.
+"""
+@autors : Gaël and Simon
+Input : an image and a crop size as a tuple (crop_width, crop_height).
+Output : a randomly cropped version of the input image, according to the cropping dimensions specified in the input.
+"""
 def random_crop(image, crop_size):
     width, height = image.size
     crop_width, crop_height = crop_size
@@ -37,7 +41,11 @@ def random_crop(image, crop_size):
     y = random.randint(0, max_y)
     return image.crop((x, y, x + crop_width, y + crop_height))
 
-
+"""
+@autors : Gaël and Simon
+Input : an image.
+Output : the ratio of blue pixels (with a value greater than 100) in the image as a one-dimensional numpy array.
+"""
 def blue_ratio(image):
     blue_channel = np.array(image)[:, :, 2]
     total_pixels = blue_channel.size
@@ -45,6 +53,11 @@ def blue_ratio(image):
     blue_ratio = blue_pixels / total_pixels
     return np.array([blue_ratio])
 
+"""
+@autors : Gaël and Simon
+Input : an image and several transformation parameters: rotations, flip, crop_size and zoom_range. 
+Output : a list of augmented images, which is the combination of all transformations applied to the input image.
+"""
 def augment_image(image, rotations, flip, crop_size=None, zoom_range=None):
     augmented_images = []
     for angle in rotations:
@@ -74,12 +87,21 @@ def augment_image(image, rotations, flip, crop_size=None, zoom_range=None):
                 augmented_images.append(flipped_zoomed_cropped_image)
     return augmented_images
 
+"""
+@autors : Gaël and Simon
+Input : the path to an image. 
+Output : the resized image (200, 200).
+"""
 def process_image(image_path):
     image = Image.open(image_path)
     resized_image = image.resize((200, 200))
     return resized_image
 
-
+"""
+@autors : Gaël and Simon
+Input : two images: color_image is the color image and gray_image is the grayscale image.
+Output : a feature vector that combines the proportion of blue pixels and the LBP features of the grayscale image.
+"""
 def extract_features(color_image, gray_image):
     if color_image.mode == "RGB":  # Vérifie que l'image est en couleur
         blue_feature = blue_ratio(color_image)
@@ -91,7 +113,11 @@ def extract_features(color_image, gray_image):
     feature_vector = np.concatenate((blue_feature, lbp_feature))
     return feature_vector
 
-
+"""
+@autors : Gaël and Simon
+Input : a directory containing the training images.
+Output : a list of elements, each representing a transformed and labeled image. Each element contains the name of the image, its label (1 for "Sea" and -1 for "Elsewhere") and its representation as a feature vector.
+"""
 def load_transform_label_train_data_svm(directory):
     image_data = []
     label_dirs = {'Ailleurs': -1, 'Mer': 1}
@@ -111,6 +137,12 @@ def load_transform_label_train_data_svm(directory):
                 image_data.append({'nom': image, 'label': value, 'representation': feature_vector})
 
     return image_data
+
+"""
+@autors : Gaël and Simon
+Input : a directory containing the training images.
+Output : a list of elements, each representing a transformed and labeled image. Each element contains the name of the image, its label (1 for "Sea" and -1 for "Elsewhere") and its representation as a feature vector.
+"""
 def predict_and_display(clf, X_test, y_test, image_data):
     predictions = clf.predict(X_test)
     correct_predictions = predictions == y_test
@@ -170,5 +202,3 @@ def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
     svmModel = loadLearnedModel(fileModel)
     predictedData = predict_with_SVM(fileTestData, svmModel)
     write_predictions("Predictions", predictedData, fileForPredictedData)
-
-
