@@ -543,7 +543,7 @@ def predict_sample_label_2(data, model):
     return result
 
 """
-@authors : Simon
+@author : Simon
 Save the predictions on data to a text file with syntax:
 filename <space> label (either -1 or 1)  
 NO ACCENT  
