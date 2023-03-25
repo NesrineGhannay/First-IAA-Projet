@@ -76,6 +76,6 @@ def run_knn_classification(data_path, test_path,path_for_predictions,representat
     # print("Modèle entrainé, validation croisée:" , estimate_model_score(model,data_normalized,k))
 
     predicted_labels = predict_sample_label_2(test_data_normalized, model)
-    write_predictions(path_for_predictions, predicted_labels,'predictionsCC2_SVM.txt')
+    write_predictions(path_for_predictions, predicted_labels,'PredictionsCC2_kNN.txt')
 
 # run_knn_classification("Data", "TestCC2", "Predictions", "HC")
