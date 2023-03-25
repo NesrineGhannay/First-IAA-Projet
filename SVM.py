@@ -188,6 +188,7 @@ Output : nothing.
 def saveSVM(filedata):
     model = SVM_model(filedata)
     saveModel(model, "SVM")
+
 # saveSVM("Data")
 
 """

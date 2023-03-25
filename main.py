@@ -18,4 +18,4 @@ Groupe Sierra : Nesrine GHANNAY, Simon HIATY, Gael TUCZAPSKI et Bryce MANTILARO
 
 # Permet de prédire les labels des iamges dans le dossier "TestCC2 avec le model appris "SVM.pkl"
 # Le fichier produit sera nommé "PredictionCC2_SIERRA.txt"
-mainSVM_prediction("SVM.pkl", "TestCC2", "PreditionCC2_SVM")
+# mainSVM_prediction("SVM.pkl", "TestCC2", "PreditionCC2_SVM")

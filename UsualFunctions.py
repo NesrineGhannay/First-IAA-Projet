@@ -47,7 +47,7 @@ def raw_image_to_representation(image, representation):
     return "Représentation non disponible"
 
 """
-@author : Nesrine & Simon
+@author : Nesrine
 Computes a representation of an image from the (gif, png, jpg...) file 
 representation can be (to extend) 
 'HC': color histogram
@@ -505,6 +505,7 @@ def predict_example_label(example, model):
 
 
 """
+@author: Nesrine & Gael
 Computes an array (or list or dico or whatever) that associates a prediction 
 to each example (image) of the data, using a previously learned model. 
 Here data has been previously transformed to the representation used to learn
