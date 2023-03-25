@@ -44,6 +44,12 @@ def raw_image_to_representation(image, representation):
     if representation == 'HC':
         return histo_image(image_redim)
 
+    if representation == 'PX':
+        return tensor_image(image_redim)
+
+    if representation == 'GC':
+        return graymatrix_image(image_redim)
+
     return "Représentation non disponible"
 
 """
@@ -81,7 +87,7 @@ def raw_croped_image_to_representation(image, representation):
     if representation == 'GC':
         return graymatrix_image(image_redim)
 
-    return "il y a un problème"  # voir ce qu'on retourne lorsque l'image a un pb
+    return "il y a un problème"
 
 
 """@author : Nesrine & Simon"""
