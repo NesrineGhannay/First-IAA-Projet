@@ -649,7 +649,7 @@ def loadLearnedModel(fileModel):
 """
 @author : Nesrine 
 Compute predictions for images stored in a file. (used for logistic regression)
-input = name of the file containing the images to be produced and the learning algorithm used
+input = name of the file containing the images to be produced the learning algorithm used and the name of the file which we want to produce
 output = a file . txt containing all the predictions made by the chosen learning algorithm
 """
 def classifyingImages(fileToClassify, modelFile, nameFilePrediction):

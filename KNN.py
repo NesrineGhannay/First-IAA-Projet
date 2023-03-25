@@ -73,7 +73,9 @@ def run_knn_classification(data_path, test_path,path_for_predictions,representat
 
     algo_dico = {'algorithm': 'knn', 'n_neighbors': k_neighbors}
     k = 5 # nombre de plis pour la validation croisée
-    print("Modèle entrainé, validation croisée:" , estimate_model_score(model,data_normalized,k))
+    # print("Modèle entrainé, validation croisée:" , estimate_model_score(model,data_normalized,k))
 
     predicted_labels = predict_sample_label_2(test_data_normalized, model)
-    write_predictions(path_for_predictions, predicted_labels,'predictions.txt')
+    write_predictions(path_for_predictions, predicted_labels,'predictionsCC2_SVM.txt')
+
+# run_knn_classification("Data", "TestCC2", "Predictions", "HC")

@@ -25,7 +25,7 @@ From a data file taken as a parameter, learns through logistic regression a mode
 """
 def logisticRegression(filedata):
     data = getFinalData_croped_blue(filedata)
-    # Création d'une instance du modèle LogisticRegression avec C:  l'inverse de la force de régularisation,
+    # Création d'une instance du modèle LogisticRegression avec C: l'inverse de la force de régularisation,
     # liblinear l'algorithme d'optimisation utilisé pour entraîner le modèle et max_iter: le nombre maximum
     # d'itérations autorisées pour la convergence
     lr = LogisticRegression(C=0.8, solver="liblinear", max_iter=100)

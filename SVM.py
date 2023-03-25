@@ -229,3 +229,19 @@ def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
     svmModel = loadLearnedModel(fileModel)
     predictedData = predict_with_SVM(fileTestData, svmModel)
     write_predictions("Predictions", predictedData, fileForPredictedData)
+
+
+
+'''
+@author: Nesrine
+Allows to keep the success percentage of SVM model
+input: the learning file
+output: a percentage representing the learning rate of the model taken as a parameter
+function used: loadLearnedModel(), load_transform_label_train_data_svm() & estimate_model_score()
+'''
+def estimate_SVM_score(fileData):
+    model = loadLearnedModel("SVM.pkl")
+    data = load_transform_label_train_data_svm(fileData)
+    return estimate_model_score(model, data, 10)
+
+# print(estimate_SVM_score("Data"))
