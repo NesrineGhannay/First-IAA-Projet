@@ -56,7 +56,7 @@ def run_cross_validation_2(data_path, representation, k_fold=5, metric='accuracy
 ### Troisième fonction : Aprentissage du modèle KNN avec les paramètres choisis + séparation test et data normal + write predictions
 
 
-def run_knn_classification(data_path, test_path, representation, k_neighbors=5):
+def run_knn_classification(data_path, test_path,path_for_predictions,representation, k_neighbors=5):
     data_1 = load_transform_label_train_data(data_path, representation)
     data_2 = load_transform_label_train_data_zoom(data_path, representation)
     data_3 = load_transform_label_train_data_crop(data_path, representation)
@@ -76,6 +76,4 @@ def run_knn_classification(data_path, test_path, representation, k_neighbors=5):
     print("Modèle entrainé, validation croisée:" , estimate_model_score(model,data_normalized,k))
 
     predicted_labels = predict_sample_label_2(test_data_normalized, model)
-    write_predictions(os.path.join(data_path, "Predictions"), predicted_labels,'predictionsKNN.txt')
-
-# run_knn_classification("Data", "TestCC2", "HC")
+    write_predictions(path_for_predictions, predicted_labels,'predictions.txt')
