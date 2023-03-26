@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from UsualFunctions import *
 
 
 def motie_haute(image):
