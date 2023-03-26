@@ -134,7 +134,11 @@ def transform_to_vecteur(imageData):
 
     return imageData
 
-
+"""
+@autors : Bryce
+Input :
+Output :
+"""
 def normalize_representation_dict(samples_data):
     scaler = StandardScaler()
     representations = [d["representation"] for d in samples_data]
@@ -146,7 +150,17 @@ def normalize_representation_dict(samples_data):
     return samples_data
 
 
+"""
+@autors : Bryce
+Usual functions needed to use load_transform_label_train_data crop,rotations,zoom.
+Input :  The loaded image, and the random crop_size ideally, to have a randomly cropped image that is good for training our model, we can use (200,200) or (150,150) 
+to have a better variation of the image.
+Same for rotations, ideally, we use angle_range=(-180,180) for better accuaracy.
+Same for zoom, we use a zoom_range (ratio) around 20% of the image to 70%. (Zoom-_range = (0.2,0.7))
+Output : Randomly cropped, zoomed,or rotated image.
 
+CAUTION: We do not use rotations for k-nn model.
+"""
 def random_crop(image, crop_size):
     width, height = image.size
     crop_width, crop_height = crop_size
@@ -234,6 +248,8 @@ directory have been croped, transformed and labelled according to the directory 
 stored in.
 -- uses function raw_croped_image_to_representation
 """
+
+
 def load_transform_label_train_data_croped(directory, representation):
     image_data = []
     # sous-dossiers contenus dans "directory"
@@ -264,7 +280,19 @@ def load_transform_label_train_data_croped(directory, representation):
     return image_data
 
 
+"""
+@autors : Bryce
+Returns a data structure embedding train images described according to the 
+specified representation and associate each image to its label.
+Here, input representation is useless because we  use this three functions for k-nn model with only HC representation.
+Input : where are the data.
+Output : a structure (dictionnary ? Matrix ? File ?) where the images of the
+directory have been croped,rotated or zoomed, transformed and labelled according to the directory they are
+stored in.
 
+
+## CAUTION: We should not use rotations which falsifies the accuracy of the K-nn model since the intensity of the pixels does not change if we rotate the image.
+"""
 
 
 def load_transform_label_train_data_crop(directory, representation):
@@ -402,11 +430,6 @@ def load_transform_label_train_data_zoom(directory, representation):
 
 
 
-
-
-
-
-
 """
 @author : Nesrine 
 Returns a data structure embedding test images described according to the 
@@ -528,7 +551,10 @@ def predict_sample_label(data, model):
 
     return data
 
-
+"""
+@autors : Bryce
+Same as predict_sample_label but allows us to not return each images's representation that we do not need to return predictions.txt 
+"""
 
 def predict_sample_label_2(data, model):
     names = []
