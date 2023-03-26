@@ -26,5 +26,5 @@ Groupe Sierra : Nesrine GHANNAY, Simon HIATY, Gael TUCZAPSKI et Bryce MANTILARO
 
 # Algorithme non retenu, KNN
 
-run_knn_classification("C:/Users/bryce/PycharmProjects/projet-iaa/Data","C:/Users/bryce/PycharmProjects/projet-iaa/TestCC2","C:/Users/bryce/PycharmProjects/projet-iaa",'HC')
+#run_knn_classification("C:/Users/bryce/PycharmProjects/projet-iaa/Data","C:/Users/bryce/PycharmProjects/projet-iaa/TestCC2","C:/Users/bryce/PycharmProjects/projet-iaa",'HC')
 
