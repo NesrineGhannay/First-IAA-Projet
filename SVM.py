@@ -120,7 +120,7 @@ def extract_features(color_image, gray_image):
 Input : a directory containing the training images.
 Output : a list of elements, each representing a transformed and labeled image. Each element contains the name of the image, its label (1 for "Sea" and -1 for "Elsewhere") and its representation as a feature vector.
 """
-def load_transform_label_train_data(directory):
+def load_transform_label_train_data_svm(directory):
     image_data = []
     label_dirs = {'Ailleurs': -1, 'Mer': 1}
 
@@ -191,7 +191,7 @@ def saveSVM(filedata):
     model = SVM_model(filedata)
     saveModel(model, "SVM")
 
-# saveSVM("Data")
+#saveSVM("Data")
 
 """
 @autors : Gaël and Simon
@@ -232,7 +232,7 @@ def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
     predictedData = predict_with_SVM(fileTestData, svmModel)
     write_predictions("Predictions", predictedData, fileForPredictedData)
 
-
+mainSVM_prediction("SVM.pkl", "TestCC2", "SIERRA")
 
 '''
 @author: Nesrine
