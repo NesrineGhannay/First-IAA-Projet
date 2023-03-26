@@ -686,13 +686,5 @@ def calculate_accuracy(predicted_labels, train_data):
 
 
 
-    # def get_X_y(data_dico):
-    #     X = []
-    #     y = []
-    #     for image in data_dico:
-    #         X.append(image['representation'])
-    #         y.append(image['label'])
-    #     return X, y
-
 
 
