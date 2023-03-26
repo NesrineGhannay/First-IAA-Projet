@@ -12,6 +12,8 @@ from skimage.feature import local_binary_pattern
 import random
 from UsualFunctions import *
 
+crop_size = (50, 50)
+zoom_range = (0.8, 1.2)
 rotations = [0, 90, 180, 270]
 flip = True
 
@@ -35,8 +37,8 @@ Output : a randomly cropped version of the input image, according to the croppin
 def random_crop(image, crop_size):
     width, height = image.size
     crop_width, crop_height = crop_size
-    max_x = width - crop_width
-    max_y = height - crop_height
+    max_x = max(width - crop_width, 0)
+    max_y = max(height - crop_height, 0)
     x = random.randint(0, max_x)
     y = random.randint(0, max_y)
     return image.crop((x, y, x + crop_width, y + crop_height))
@@ -129,7 +131,7 @@ def load_transform_label_train_data_svm(directory):
             img_path = os.path.join(subdir, image)
             img_orig = Image.open(img_path)
             img_resized = img_orig.resize((200, 200))
-            augmented_images = augment_image(img_resized, rotations, flip)
+            augmented_images = augment_image(img_resized, rotations, flip, crop_size=crop_size, zoom_range=zoom_range)
 
             for aug_image in augmented_images:
                 gray_aug_image = aug_image.convert('L')
@@ -189,7 +191,7 @@ def saveSVM(filedata):
     model = SVM_model(filedata)
     saveModel(model, "SVM")
 
-# saveSVM("Data")
+#saveSVM("Data")
 
 """
 @autors : Gaël and Simon
@@ -230,7 +232,7 @@ def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
     predictedData = predict_with_SVM(fileTestData, svmModel)
     write_predictions("Predictions", predictedData, fileForPredictedData)
 
-
+mainSVM_prediction("SVM.pkl", "TestCC2", "SIERRA")
 
 '''
 @author: Nesrine
