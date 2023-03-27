@@ -232,7 +232,7 @@ def mainSVM_prediction(fileModel, fileTestData, fileForPredictedData):
     predictedData = predict_with_SVM(fileTestData, svmModel)
     write_predictions("Predictions", predictedData, fileForPredictedData)
 
-mainSVM_prediction("SVM.pkl", "TestCC2", "SIERRA")
+mainSVM_prediction("SVM.pkl", "TestCC2", "SIERRA.txt")
 
 '''
 @author: Nesrine
