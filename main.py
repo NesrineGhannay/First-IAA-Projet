@@ -21,6 +21,8 @@ Groupe Sierra : Nesrine GHANNAY, Simon HIATY, Gael TUCZAPSKI et Bryce MANTILARO
 # Le fichier produit sera nommé "PredictionCC2_SIERRA.txt"
 # mainSVM_prediction("SVM.pkl", "TestCC2", "PreditionCC2_SVM.txt")
 
+mainSVM_prediction("SVM.pkl", "TestFinal", "SIERRA.txt")
+
 
 
 
