@@ -22,6 +22,8 @@ def learn_knn_model_from_data(train_data, n_neighbors):
 @autors : Bryce
 Input : Train_data, cv (number of cross validation), metric(scoring) = 'uniform',  or 'accuracy', accuracy is better from multiples tests
 Output : Evaluation of the model in percent
+CAUTION: #Possibilité ici de modifier les paramètres par défaut et de prendre (comme vu dans le rapport) une distance différente de celle
+par défaut: cf minkowski, et ici plutôt prendre la distance de manhathan.
 """
 
 def estimate_model_score_cross(train_data, cv, scoring):
